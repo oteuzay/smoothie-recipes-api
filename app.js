@@ -26,6 +26,8 @@ const config = require("./config/config");
 /*
  *  Routes
  */
+const authRoutes = require("./routes/auth");
+const recipesRoutes = require("./routes/recipes");
 
 /* Creating an instance of the Express application. */
 const app = express();
@@ -67,6 +69,8 @@ if (config.NODE_ENV === "Development") {
 /*
  *  Routes
  */
+app.use("/auth", authRoutes);
+app.use("/recipes", recipesRoutes);
 
 /* The code is a middleware function that is used to handle requests for routes that are not found. */
 app.use(async (req, res, next) => {
