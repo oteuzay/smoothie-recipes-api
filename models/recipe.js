@@ -30,4 +30,22 @@ const recipeSchema = new mongoose.Schema(
   }
 );
 
+recipeSchema.methods.toJSON = function () {
+  return {
+    id: this.id,
+    title: this.title,
+  };
+};
+
+recipeSchema.methods.toJSONForDetail = function () {
+  return {
+    id: this.id,
+    title: this.title,
+    recipe: this.recipe.ingredients.map((ingredient) => ({
+      name: ingredient.name,
+      amount: ingredient.amount,
+    })),
+  };
+};
+
 module.exports = mongoose.model("Recipe", recipeSchema);
