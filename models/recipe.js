@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const convertDateFormat = require("../helpers/convert-date-format");
+
 const recipeSchema = new mongoose.Schema(
   {
     title: {
@@ -23,6 +25,7 @@ const recipeSchema = new mongoose.Schema(
     userID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
   },
   {
@@ -34,6 +37,7 @@ recipeSchema.methods.toJSON = function () {
   return {
     id: this.id,
     title: this.title,
+    createdAt: convertDateFormat(this.createdAt),
   };
 };
 
@@ -45,6 +49,9 @@ recipeSchema.methods.toJSONForDetail = function () {
       name: ingredient.name,
       amount: ingredient.amount,
     })),
+    createdAt: convertDateFormat(this.createdAt),
+    updatedAt: convertDateFormat(this.updatedAt),
+    createdBy: this.userID.email,
   };
 };
 
