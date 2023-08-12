@@ -35,7 +35,8 @@ exports.signRefreshToken = async (userID) => {
   try {
     const token = jsonwebtoken.sign({}, secret, options);
 
-    await client.SET(userID, token, "EX", 365 * 24 * 60 * 60);
+    await client.SET(userID, token);
+    await client.expire(userID, 365 * 24 * 60 * 60);
 
     return token;
   } catch (error) {
