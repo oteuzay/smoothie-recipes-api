@@ -4,16 +4,18 @@ Enjoy a variety of delicious smoothie recipes with this API.
 
 ## Stack
 
-**Web Framework:** [Express Framework](https://expressjs.com/)
-**ODM:** [Mongoose](https://mongoosejs.com/)
-**Caching and Data Storage:** [Redis](https://redis.com/)
-**Validator:** [Express Validator](https://express-validator.github.io/docs)
-**Authentication:** [JsonWebToken](https://www.npmjs.com/package/jsonwebtoken)
-**Logging:** [Morgan](https://github.com/expressjs/morgan)
-**Documentation:** [Swagger](https://swagger.io/)
-**Errors:** [http-errors](https://github.com/jshttp/http-errors)
-**Security:** [Bcrypt](https://www.npmjs.com/package/bcrypt), [Helmet](https://helmetjs.github.io/)
-**Others:** [Cors](https://www.npmjs.com/package/cors), [Compression](https://www.npmjs.com/package/compression), [Dotenv](https://github.com/motdotla/dotenv)
+| Category             | Dependency                                                                                   |
+|----------------------|----------------------------------------------------------------------------------------------|
+| Web Framework        | [Express Framework](https://expressjs.com/)                                                 |
+| ODM                  | [Mongoose](https://mongoosejs.com/)                                                         |
+| Caching and Data Storage | [Redis](https://redis.com/)                                                             |
+| Validator            | [Express Validator](https://express-validator.github.io/docs)                                |
+| Authentication       | [JsonWebToken](https://www.npmjs.com/package/jsonwebtoken)                                  |
+| Logging              | [Morgan](https://github.com/expressjs/morgan)                                               |
+| Documentation        | [Swagger](https://swagger.io/)                                                             |
+| Errors               | [http-errors](https://github.com/jshttp/http-errors)                                         |
+| Security             | [Bcrypt](https://www.npmjs.com/package/bcrypt), [Helmet](https://helmetjs.github.io/)         |
+| Others               | [Cors](https://www.npmjs.com/package/cors), [Compression](https://www.npmjs.com/package/compression), [Dotenv](https://github.com/motdotla/dotenv) |
 
 ## Installation
 
