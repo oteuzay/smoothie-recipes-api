@@ -1,4 +1,4 @@
-# Smoothie Recipes API
+# Smoothie Recipes API [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/oteuzay/smoothie-recipes-api/blob/main/LICENSE)
 
 Enjoy a variety of delicious smoothie recipes with this API.
 
@@ -14,8 +14,8 @@ Enjoy a variety of delicious smoothie recipes with this API.
 | Logging              | [Morgan](https://github.com/expressjs/morgan)                                               |
 | Documentation        | [Swagger](https://swagger.io/)                                                             |
 | Errors               | [http-errors](https://github.com/jshttp/http-errors)                                         |
-| Security             | [Bcrypt](https://www.npmjs.com/package/bcrypt), [Helmet](https://helmetjs.github.io/)         |
-| Others               | [Cors](https://www.npmjs.com/package/cors), [Compression](https://www.npmjs.com/package/compression), [Dotenv](https://github.com/motdotla/dotenv) |
+| Security             | [Bcrypt](https://www.npmjs.com/package/bcrypt) - [Helmet](https://helmetjs.github.io/)         |
+| Others               | [Cors](https://www.npmjs.com/package/cors) - [Compression](https://www.npmjs.com/package/compression) - [Dotenv](https://github.com/motdotla/dotenv) |
 
 ## Installation
 
