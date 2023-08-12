@@ -8,10 +8,14 @@ const router = require("express").Router();
 const recipesController = require("../controllers/recipes");
 const recipesValidator = require("../validators/recipes");
 
+const auth = require("../helpers/auth");
+
 /**
  * @swagger
  * /recipes:
  *   get:
+ *     summary: Get All Recipes
+ *     description: Endpoint to retrieve a list of all recipes.
  *     tags: [Recipes]
  *     parameters:
  *       - in: query
@@ -30,6 +34,8 @@ router.get("/", recipesValidator.getRecipes, recipesController.getRecipes);
  * @swagger
  * /recipes/{id}:
  *   get:
+ *     summary: Get Recipe Details
+ *     description: Endpoint to retrieve details of a specific recipe by ID.
  *     tags: [Recipes]
  *     parameters:
  *       - in: path
@@ -51,6 +57,8 @@ router.get("/:id", recipesValidator.getRecipe, recipesController.getRecipe);
  * @swagger
  * /recipes:
  *   post:
+ *     summary: Create a New Recipe
+ *     description: Endpoint to create a new recipe.
  *     tags: [Recipes]
  *     security:
  *       - bearerAuth: []
@@ -68,8 +76,8 @@ router.get("/:id", recipesValidator.getRecipe, recipesController.getRecipe);
  *               ingredients:
  *                 type: Array
  *             example:
- *               title: Muzlu Smoothie
- *               ingredients: [ { "name": "Süt", "amount": "500 ML" }, { "name": "Muz", "amount": "1 Adet (Büyük Boy)" }, { "name": "Bal", "amount": "1 YK" } ]
+ *               title: Mango Smoothie
+ *               ingredients: [ { "name": "Milk", "amount": "500 ML" }, { "name": "Mango", "amount": "1 Large (Ripe)" }, { "name": "Honey", "amount": "1 TBSP" } ]
  *     responses:
  *       201:
  *         description: Success
@@ -78,12 +86,19 @@ router.get("/:id", recipesValidator.getRecipe, recipesController.getRecipe);
  *       500:
  *         description: Internal Server Error
  */
-router.post("/", recipesValidator.createRecipe, recipesController.createRecipe);
+router.post(
+  "/",
+  auth.verifyAccessToken,
+  recipesValidator.createRecipe,
+  recipesController.createRecipe
+);
 
 /**
  * @swagger
  * /recipes/{id}:
  *   put:
+ *     summary: Update Recipe
+ *     description: Endpoint to update an existing recipe by ID.
  *     tags: [Recipes]
  *     security:
  *       - bearerAuth: []
@@ -107,8 +122,8 @@ router.post("/", recipesValidator.createRecipe, recipesController.createRecipe);
  *               ingredients:
  *                 type: Array
  *             example:
- *               title: Çilekli Smoothie
- *               ingredients: [ { "name": "Süt", "amount": "400 ML" }, { "name": "Çilek", "amount": "11 Adet (Küçük Boy)" } ]
+ *               title: Berry Fusion Delight
+ *               ingredients: [ { "name": "Milk", "amount": "400 ML" }, { "name": "Mixed Berries", "amount": "1 Cup" } ]
  *     responses:
  *       200:
  *         description: Success
@@ -121,6 +136,7 @@ router.post("/", recipesValidator.createRecipe, recipesController.createRecipe);
  */
 router.put(
   "/:id",
+  auth.verifyAccessToken,
   recipesValidator.updateRecipe,
   recipesController.updateRecipe
 );
@@ -129,6 +145,8 @@ router.put(
  * @swagger
  * /recipes/{id}:
  *   delete:
+ *     summary: Delete Recipe
+ *     description: Endpoint to delete a recipe by ID.
  *     tags: [Recipes]
  *     security:
  *       - bearerAuth: []
@@ -152,6 +170,7 @@ router.put(
  */
 router.delete(
   "/:id",
+  auth.verifyAccessToken,
   recipesValidator.deleteRecipe,
   recipesController.deleteRecipe
 );
