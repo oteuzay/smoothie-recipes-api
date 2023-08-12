@@ -12,6 +12,8 @@ const authValidator = require("../validators/auth");
  * @swagger
  * /auth/signup:
  *   post:
+ *     summary: User Sign-up
+ *     description: Endpoint for user registration.
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -44,6 +46,8 @@ router.post("/signup", authValidator.signup, authController.signup);
  * @swagger
  * /auth/signin:
  *   post:
+ *     summary: User Sign-in
+ *     description: Endpoint for user authentication and obtaining tokens.
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -78,6 +82,8 @@ router.post("/signin", authValidator.signin, authController.signin);
  * @swagger
  * /auth/signout:
  *   delete:
+ *     summary: User Sign-out
+ *     description: Endpoint for user logout and token invalidation.
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -107,6 +113,8 @@ router.delete("/signout", authValidator.signout, authController.signout);
  * @swagger
  * /auth/refreshToken:
  *   post:
+ *     summary: Refresh Access Token
+ *     description: Endpoint for refreshing an expired access token using a refresh token.
  *     tags: [Auth]
  *     requestBody:
  *       required: true
