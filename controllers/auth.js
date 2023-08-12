@@ -2,6 +2,9 @@ const User = require("../models/user");
 
 const createError = require("http-errors");
 
+const auth = require("../helpers/auth");
+const client = require("../helpers/redis");
+
 exports.signup = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -42,11 +45,17 @@ exports.signin = async (req, res, next) => {
     }
 
     // TODO: Generating tokens.
+    const accessToken = await auth.signAccessToken(user.id);
+    const refreshToken = await auth.signRefreshToken(user.id);
 
     res.json({
       message: "User successfully signed in.",
       user: {
         email: email,
+      },
+      token: {
+        accessToken: accessToken,
+        refreshToken: refreshToken,
       },
     });
   } catch (error) {
@@ -61,6 +70,10 @@ exports.signout = async (req, res, next) => {
     if (!refreshToken) {
       throw createError.BadRequest();
     }
+
+    const userID = await auth.verifyRefreshToken(refreshToken);
+
+    await client.DEL(userID);
 
     res.json({
       message: "User successfully signed out.",
@@ -78,8 +91,14 @@ exports.refreshToken = async (req, res, next) => {
       throw createError.BadRequest();
     }
 
+    const userID = await auth.verifyRefreshToken(refreshToken);
+
     res.json({
       message: "Access token successfully refreshed.",
+      token: {
+        accessToken: await auth.signAccessToken(userID),
+        refreshToken: await auth.signRefreshToken(userID),
+      },
     });
   } catch (error) {
     next(error);

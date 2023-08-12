@@ -1,4 +1,5 @@
 const Recipe = require("../models/recipe");
+const User = require("../models/user");
 
 const createError = require("http-errors");
 
@@ -31,7 +32,7 @@ exports.getRecipes = async (req, res, next) => {
 /* The `getRecipe` function is responsible for retrieving a specific recipe by its ID. */
 exports.getRecipe = async (req, res, next) => {
   try {
-    const recipe = await Recipe.findById(req.params.id);
+    const recipe = await Recipe.findById(req.params.id).populate("userID");
 
     if (!recipe) {
       throw createError.NotFound();
@@ -53,7 +54,12 @@ exports.createRecipe = async (req, res, next) => {
     const recipe = await Recipe({
       title: title,
       recipe: { ingredients: ingredients },
+      userID: req.payload.aud,
     }).save();
+
+    await User.findByIdAndUpdate(req.payload.aud, {
+      $push: { recipes: recipe },
+    });
 
     res.json({
       message: "Recipe successfully created.",
@@ -73,6 +79,10 @@ exports.updateRecipe = async (req, res, next) => {
 
     if (!recipe) {
       throw createError.NotFound();
+    }
+
+    if (recipe.userID.toString() !== req.payload.aud) {
+      throw createError.Conflict();
     }
 
     recipe.title = title;
@@ -98,7 +108,15 @@ exports.deleteRecipe = async (req, res, next) => {
       throw createError.NotFound();
     }
 
+    if (recipe.userID.toString() !== req.payload.aud) {
+      throw createError.Conflict();
+    }
+
     await Recipe.findByIdAndRemove(req.params.id);
+
+    await User.findByIdAndUpdate(recipe.userID, {
+      $pull: { recipes: req.params.id },
+    });
 
     res.json({
       message: "Recipe successfully deleted.",
