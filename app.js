@@ -12,22 +12,16 @@ const compression = require("compression");
 /* The line is importing the `http-errors` module. */
 const createError = require("http-errors");
 
-/* This module provides a set of middleware functions that allow you to serve Swagger
-documentation for your API. */
-const swaggerUI = require("swagger-ui-express");
-
-/* The line is importing the Swagger specification for the API documentation. */
-const swaggerSpec = require("./config/swagger");
-
-/* This allows the application to access the configuration settings defined in the
-`config.js` file, such as the database URI, allowed origin for CORS, the port number and etc. */
-const config = require("./config/config");
+/*
+ * Configs
+ */
+const apiConfig = require("./config/api.config");
+const databaseConfig = require("./config/database.config");
 
 /*
  *  Routes
  */
-const authRoutes = require("./routes/auth");
-const recipesRoutes = require("./routes/recipes");
+const mainRoute = require("./routes/main.route");
 
 /* Creating an instance of the Express application. */
 const app = express();
@@ -42,7 +36,7 @@ app.use(morgan("combined"));
 /* The statement is enabling Cross-Origin Resource Sharing (CORS) for the Express application. */
 app.use(
   cors({
-    origin: config.ALLOWED_ORIGIN,
+    origin: apiConfig.ALLOWED_ORIGIN,
   })
 );
 
@@ -60,17 +54,10 @@ app.use(express.json());
 /* The `compression()` statement is enabling compression middleware in the Express application. */
 app.use(compression());
 
-/* The code block is checking if the `NODE_ENV` environment variable is set to "Development". */
-if (config.NODE_ENV === "Development") {
-  /* Setting up a route for serving Swagger documentation. */
-  app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
-}
-
 /*
  *  Routes
  */
-app.use("/auth", authRoutes);
-app.use("/recipes", recipesRoutes);
+app.use("/", mainRoute);
 
 /* The code is a middleware function that is used to handle requests for routes that are not found. */
 app.use(async (req, res, next) => {
@@ -89,11 +76,11 @@ app.use((error, req, res, next) => {
 
 /* The code block is establishing a connection to a MongoDB database using Mongoose. */
 mongoose
-  .connect(config.DB_URI, {})
+  .connect(databaseConfig.DB_URI, {})
   .then(() => {
     /* Starting the Express application and listening for incoming requests on the specified port. */
-    app.listen(config.PORT, () => {
-      console.log(`Server is running on port ${config.PORT}.`);
+    app.listen(apiConfig.PORT, () => {
+      console.log(`Server is running on port ${apiConfig.PORT}.`);
     });
   })
   .catch((err) => console.error(err));
