@@ -2,21 +2,21 @@ const jsonwebtoken = require("jsonwebtoken");
 
 const createError = require("http-errors");
 
-const client = require("./redis");
+const cacheClient = require("../cache/index").connect();
 
-client.connect();
-
-const config = require("../config/config");
+const authConfig = require("../config/auth.config");
 
 exports.signAccessToken = async (userID) => {
   const options = {
-    expiresIn: "4m",
+    expiresIn: "15m",
     issuer: "oteuzay.github.io",
     audience: userID,
   };
 
+  const accessTokenSecret = authConfig.ACCESS_TOKEN_SECRET;
+
   try {
-    return jsonwebtoken.sign({}, config.ACCESS_TOKEN_SECRET, options);
+    return jsonwebtoken.sign({}, accessTokenSecret, options);
   } catch (error) {
     console.log(error.message);
     throw createError.InternalServerError();
@@ -30,13 +30,13 @@ exports.signRefreshToken = async (userID) => {
     audience: userID,
   };
 
-  const secret = config.REFRESH_TOKEN_SECRET;
+  const refreshTokenSecret = authConfig.REFRESH_TOKEN_SECRET;
 
   try {
-    const token = jsonwebtoken.sign({}, secret, options);
+    const token = jsonwebtoken.sign({}, refreshTokenSecret, options);
 
-    await client.SET(userID, token);
-    await client.expire(userID, 365 * 24 * 60 * 60);
+    await cacheClient.SET(userID, token);
+    await cacheClient.expire(userID, 365 * 24 * 60 * 60);
 
     return token;
   } catch (error) {
@@ -46,7 +46,7 @@ exports.signRefreshToken = async (userID) => {
 
 exports.verifyAccessToken = async (req, res, next) => {
   try {
-    const authHeader = req.headers["authorization"];
+    const authHeader = req.headers["Authorization"];
 
     if (!authHeader) {
       throw createError.Unauthorized();
@@ -55,10 +55,9 @@ exports.verifyAccessToken = async (req, res, next) => {
     const bearerToken = authHeader.split(" ");
     const token = bearerToken[1];
 
-    const payload = await jsonwebtoken.verify(
-      token,
-      config.ACCESS_TOKEN_SECRET
-    );
+    const accessTokenSecret = authConfig.ACCESS_TOKEN_SECRET;
+
+    const payload = await jsonwebtoken.verify(token, accessTokenSecret);
 
     req.payload = payload;
     next();
@@ -69,14 +68,13 @@ exports.verifyAccessToken = async (req, res, next) => {
 
 exports.verifyRefreshToken = async (refreshToken) => {
   try {
-    const payload = await jsonwebtoken.verify(
-      refreshToken,
-      config.REFRESH_TOKEN_SECRET
-    );
+    const refreshTokenSecret = authConfig.REFRESH_TOKEN_SECRET;
+
+    const payload = await jsonwebtoken.verify(refreshToken, refreshTokenSecret);
 
     const userID = payload.aud;
 
-    const result = await client.GET(userID);
+    const result = await cacheClient.GET(userID);
 
     if (refreshToken === result) {
       return userID;
