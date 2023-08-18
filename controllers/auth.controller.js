@@ -5,7 +5,7 @@ const createError = require("http-errors");
 const auth = require("../helpers/auth");
 const client = require("../helpers/redis");
 
-exports.signup = async (req, res, next) => {
+exports.signUp = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -28,7 +28,7 @@ exports.signup = async (req, res, next) => {
   }
 };
 
-exports.signin = async (req, res, next) => {
+exports.signIn = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -63,7 +63,7 @@ exports.signin = async (req, res, next) => {
   }
 };
 
-exports.signout = async (req, res, next) => {
+exports.signOut = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
 
