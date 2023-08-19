@@ -1,7 +1,4 @@
-const Recipe = require("../models/recipe");
-const User = require("../models/user");
-
-const createError = require("http-errors");
+const recipesService = require("../services/recipes.service");
 
 /* The `getRecipes` function is responsible for retrieving a list of recipes. */
 exports.getRecipes = async (req, res, next) => {
@@ -9,61 +6,49 @@ exports.getRecipes = async (req, res, next) => {
   const perPage = 10;
 
   try {
-    const countRecipes = await Recipe.find().countDocuments();
+    const countRecipes = await recipesService.countRecipes();
+    const recipes = await recipesService.getRecipes(currentPage, perPage);
 
-    const recipes = await Recipe.find()
-      .sort({ createdAt: -1 })
-      .skip((currentPage - 1) * perPage)
-      .limit(perPage);
-
-    res.json({
+    res.status(200).json({
       recipes: recipes.map((recipe) => recipe.toJSON()),
       pagination: {
         currentPage: currentPage,
         lastPage: Math.ceil(countRecipes / perPage),
-        countRecipes: countRecipes,
+        countNews: countRecipes,
       },
     });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 
 /* The `getRecipe` function is responsible for retrieving a specific recipe by its ID. */
 exports.getRecipe = async (req, res, next) => {
   try {
-    const recipe = await Recipe.findById(req.params.id).populate("userID");
+    const recipe = await recipesService.getRecipe(req.params.id);
 
-    if (!recipe) {
-      throw createError.NotFound();
-    }
-
-    res.json({
+    res.status(200).json({
       recipe: recipe.toJSONForDetail(),
     });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 
 /* The `createRecipe` function is responsible for creating a new recipe. */
 exports.createRecipe = async (req, res, next) => {
-  const { title, ingredients } = req.body;
-
   try {
-    const recipe = await Recipe({
-      title: title,
-      recipe: { ingredients: ingredients },
+    const recipe = {
+      title: req.body.title,
+      recipe: { ingredients: req.body.ingredients },
       userID: req.payload.aud,
-    }).save();
+    };
 
-    await User.findByIdAndUpdate(req.payload.aud, {
-      $push: { recipes: recipe },
-    });
+    const createdRecipe = await recipesService.createRecipe(recipe);
 
     res.json({
       message: "Recipe successfully created.",
-      recipe: recipe.toJSONForDetail(),
+      recipe: createdRecipe.toJSONForDetail(),
     });
   } catch (error) {
     next(error);
@@ -72,23 +57,16 @@ exports.createRecipe = async (req, res, next) => {
 
 /* The `updateRecipe` function is responsible for updating a recipe item. */
 exports.updateRecipe = async (req, res, next) => {
-  const { title, ingredients } = req.body;
-
   try {
-    const recipe = await Recipe.findById(req.params.id);
+    const recipeID = req.params.id;
 
-    if (!recipe) {
-      throw createError.NotFound();
-    }
+    const recipe = {
+      title: req.body.title,
+      recipe: { ingredients: req.body.ingredients },
+      userID: req.payload.aud,
+    };
 
-    if (recipe.userID.toString() !== req.payload.aud) {
-      throw createError.Conflict();
-    }
-
-    recipe.title = title;
-    recipe.recipe.ingredients = ingredients;
-
-    const updatedRecipe = await recipe.save();
+    const updatedRecipe = await recipesService.updateRecipe(recipeID, recipe);
 
     res.json({
       message: "Recipe successfully updated.",
@@ -102,21 +80,10 @@ exports.updateRecipe = async (req, res, next) => {
 /* The `deleteRecipe` function is responsible for deleting a recipe. */
 exports.deleteRecipe = async (req, res, next) => {
   try {
-    const recipe = await Recipe.findById(req.params.id);
+    const recipeID = req.params.id;
+    const userID = req.payload.aud;
 
-    if (!recipe) {
-      throw createError.NotFound();
-    }
-
-    if (recipe.userID.toString() !== req.payload.aud) {
-      throw createError.Conflict();
-    }
-
-    await Recipe.findByIdAndRemove(req.params.id);
-
-    await User.findByIdAndUpdate(recipe.userID, {
-      $pull: { recipes: req.params.id },
-    });
+    await recipesService.deleteRecipe(recipeID, userID);
 
     res.json({
       message: "Recipe successfully deleted.",
