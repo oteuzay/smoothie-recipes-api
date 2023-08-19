@@ -2,7 +2,7 @@ const jsonwebtoken = require("jsonwebtoken");
 
 const createError = require("http-errors");
 
-const cacheClient = require("../cache/index").connect();
+const cacheClient = require("../cache/index");
 
 const authConfig = require("../config/auth.config");
 
@@ -46,7 +46,7 @@ exports.signRefreshToken = async (userID) => {
 
 exports.verifyAccessToken = async (req, res, next) => {
   try {
-    const authHeader = req.headers["Authorization"];
+    const authHeader = req.headers["authorization"];
 
     if (!authHeader) {
       throw createError.Unauthorized();
@@ -81,6 +81,14 @@ exports.verifyRefreshToken = async (refreshToken) => {
     } else {
       throw createError.Unauthorized();
     }
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.deleteRefreshToken = async (userID) => {
+  try {
+    await cacheClient.DEL(userID);
   } catch (error) {
     throw error;
   }
