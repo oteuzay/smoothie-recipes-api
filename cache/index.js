@@ -10,6 +10,8 @@ const cacheClient = redis.createClient({
   port: cacheConfig.PORT,
 });
 
+cacheClient.connect();
+
 /* The code is setting up an event listener for the "connect" event of the Redis client. */
 cacheClient.on("connect", () => {
   console.log("Client has connected to Redis...");
