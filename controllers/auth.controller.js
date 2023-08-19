@@ -1,27 +1,19 @@
-const User = require("../models/user");
-
-const createError = require("http-errors");
-
-const auth = require("../helpers/auth");
-const client = require("../helpers/redis");
+const authService = require("../services/auth.service");
 
 exports.signUp = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const user = {
+      email: req.body.email,
+      password: req.body.password,
+    };
 
-    const userExisting = await User.findOne({ email: email });
-
-    if (userExisting) {
-      throw createError.Conflict();
-    }
-
-    await new User({
-      email,
-      password,
-    }).save();
+    const createdUser = await authService.singUp(user);
 
     res.status(201).json({
       message: "User successfully signed up.",
+      user: {
+        email: createdUser.email,
+      },
     });
   } catch (error) {
     next(error);
@@ -30,32 +22,21 @@ exports.signUp = async (req, res, next) => {
 
 exports.signIn = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const user = {
+      email: req.body.email,
+      password: req.body.password,
+    };
 
-    const user = await User.findOne({ email: email });
-
-    if (!user) {
-      throw createError.NotFound();
-    }
-
-    const isMatch = await user.isValidPassword(password);
-
-    if (!isMatch) {
-      throw createError.Unauthorized();
-    }
-
-    // TODO: Generating tokens.
-    const accessToken = await auth.signAccessToken(user.id);
-    const refreshToken = await auth.signRefreshToken(user.id);
+    const tokens = await authService.singIn(user);
 
     res.json({
       message: "User successfully signed in.",
       user: {
-        email: email,
+        email: user.email,
       },
-      token: {
-        accessToken: accessToken,
-        refreshToken: refreshToken,
+      tokens: {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
       },
     });
   } catch (error) {
@@ -67,13 +48,7 @@ exports.signOut = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
 
-    if (!refreshToken) {
-      throw createError.BadRequest();
-    }
-
-    const userID = await auth.verifyRefreshToken(refreshToken);
-
-    await client.DEL(userID);
+    await authService.signOut(refreshToken);
 
     res.json({
       message: "User successfully signed out.",
@@ -87,17 +62,13 @@ exports.refreshToken = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
 
-    if (!refreshToken) {
-      throw createError.BadRequest();
-    }
-
-    const userID = await auth.verifyRefreshToken(refreshToken);
+    const tokens = await authService.refreshToken(refreshToken);
 
     res.json({
       message: "Access token successfully refreshed.",
-      token: {
-        accessToken: await auth.signAccessToken(userID),
-        refreshToken: await auth.signRefreshToken(userID),
+      tokens: {
+        accessToken: tokens.newAccessToken,
+        refreshToken: tokens.newRefreshToken,
       },
     });
   } catch (error) {
