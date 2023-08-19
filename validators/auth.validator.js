@@ -2,7 +2,7 @@ const { body } = require("express-validator");
 
 const validationCheck = require("../middleware/validation-check");
 
-exports.signup = [
+exports.signUp = [
   body("email")
     .trim()
     .isEmail()
@@ -16,7 +16,7 @@ exports.signup = [
   validationCheck,
 ];
 
-exports.signin = [
+exports.signIn = [
   body("email")
     .trim()
     .isEmail()
@@ -30,7 +30,7 @@ exports.signin = [
   validationCheck,
 ];
 
-exports.signout = [
+exports.signOut = [
   body("refreshToken")
     .trim()
     .notEmpty()

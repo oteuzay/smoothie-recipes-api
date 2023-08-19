@@ -5,10 +5,10 @@
  */
 const router = require("express").Router();
 
-const recipesController = require("../controllers/recipes");
-const recipesValidator = require("../validators/recipes");
+const recipesController = require("../controllers/recipes.controller");
+const recipesValidator = require("../validators/recipes.validator");
 
-const auth = require("../helpers/auth");
+const auth = require("../utils/auth.util");
 
 /**
  * @swagger
